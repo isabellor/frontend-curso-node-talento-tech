@@ -165,7 +165,6 @@
   
   button { 
     flex: 1;
-    margin-top: 0;
     padding: 10px 16px; 
     background: #0ff; 
     color: black; 
@@ -183,44 +182,21 @@
     box-shadow: 0 4px 12px rgba(0,255,255,0.3);
   }
   
-  button:active {
-    transform: translateY(0);
-  }
-  
   button.secondary {
     background: #666;
   }
   
   button.secondary:hover {
     background: #777;
-    box-shadow: 0 4px 12px rgba(119, 119, 119, 0.3);
-  }
-  
-  .response-success {
-    border: 1px solid #0ff !important;
-    background: rgba(0,255,255,0.05) !important;
-  }
-  
-  .response-error {
-    border: 1px solid #ff6b6b !important;
-    background: rgba(255, 107, 107, 0.05) !important;
-  }
-  
-  .response-warning {
-    border: 1px solid #ffa500 !important;
-    background: rgba(255, 165, 0, 0.05) !important;
   }
 
-  /* Alineación retrofuturista GET boxes */
-  .get-box-content {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex: 1;
-  }
-  .get-box-content .button-group {
-    margin-top: auto; /* Empuja el botón al fondo */
-  }
+  .response-success { border: 1px solid #0ff !important; background: rgba(0,255,255,0.05) !important; }
+  .response-error { border: 1px solid #ff6b6b !important; background: rgba(255,107,107,0.05) !important; }
+  .response-warning { border: 1px solid #ffa500 !important; background: rgba(255,165,0,0.05) !important; }
+
+  .get-box-content { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .get-box-content .button-group { margin-top: auto; }
+
 </style>
 </head>
 
@@ -245,9 +221,11 @@
         <h3>Obtener Token JWT</h3>
         <input id="login-email" placeholder="Email" value="test@gmail.com">
         <input id="login-password" type="password" placeholder="Password" value="123456">
+
         <div class="button-group">
           <button onclick="login()">Login</button>
         </div>
+
         <textarea id="login-response" readonly></textarea>
       </div>
     </div>
@@ -256,15 +234,16 @@
   <div class="section">
     <div class="section-title">Productos - Lectura</div>
     <div class="endpoints-grid">
-
-      <!-- GET ALL -->
       <div class="endpoint-box">
         <h2>GET /products</h2>
         <h3>Obtener Todos</h3>
         <div class="get-box-content">
+
           <div class="button-group">
             <button onclick="getAll()">GET ALL</button>
+            <button class="secondary" onclick="clearGetAll()">Clear</button>
           </div>
+
           <textarea id="getall-response" readonly></textarea>
         </div>
       </div>
@@ -274,10 +253,14 @@
         <h2>GET /products/:id</h2>
         <h3>Obtener por ID</h3>
         <div class="get-box-content">
+
           <input id="get-id" placeholder="ID del producto">
+
           <div class="button-group">
             <button onclick="getOne()">GET BY ID</button>
+            <button class="secondary" onclick="clearGetOne()">Clear</button>
           </div>
+
           <textarea id="getone-response" readonly></textarea>
         </div>
       </div>
@@ -291,13 +274,17 @@
       <div class="endpoint-box">
         <h2>POST /products/create</h2>
         <h3>Crear Nuevo Producto</h3>
+
         <input id="create-name" placeholder="Nombre del producto">
         <input id="create-description" placeholder="Descripción">
         <input id="create-price" placeholder="Precio">
         <input id="create-stock" placeholder="Stock">
+
         <div class="button-group">
           <button onclick="createProduct()">CREAR</button>
+          <button class="secondary" onclick="clearCreate()">Clear</button>
         </div>
+
         <textarea id="create-response" readonly></textarea>
       </div>
     </div>
@@ -309,22 +296,23 @@
       <div class="endpoint-box">
         <h2>DELETE /products/:id</h2>
         <h3>Eliminar Producto</h3>
+
         <input id="delete-id" placeholder="ID a eliminar">
+
         <div class="button-group">
-          <button onclick="deleteProduct()" style="background: #ff6b6b;">ELIMINAR</button>
+          <button onclick="deleteProduct()" style="background:#ff6b6b;">ELIMINAR</button>
+          <button class="secondary" onclick="clearDelete()">Clear</button>
         </div>
+
         <textarea id="delete-response" readonly></textarea>
       </div>
     </div>
   </div>
 
 </div>
-
 <script>
 const BASE_URL = "https://node-talento-tech-eta.vercel.app/api";
-let token = "";
-localStorage.removeItem('ntt_token'); 
-
+let token = "";  
 
 function setToken(t) {
   token = t || "";
@@ -362,6 +350,23 @@ function clearAllResponses() {
   document.getElementById('delete-response').value = '';
 }
 
+function clearGetAll() { document.getElementById('getall-response').value = ""; }
+function clearGetOne() { 
+  document.getElementById('get-id').value = "";
+  document.getElementById('getone-response').value = "";
+}
+function clearCreate() { 
+  document.getElementById('create-name').value = "";
+  document.getElementById('create-description').value = "";
+  document.getElementById('create-price').value = "";
+  document.getElementById('create-stock').value = "";
+  document.getElementById('create-response').value = "";
+}
+function clearDelete() { 
+  document.getElementById('delete-id').value = "";
+  document.getElementById('delete-response').value = "";
+}
+
 function setResponseStyle(elementId, status) {
   const textarea = document.getElementById(elementId);
   textarea.classList.remove('response-success', 'response-error', 'response-warning');
@@ -378,11 +383,7 @@ function setResponseStyle(elementId, status) {
 async function login() {
   const email = document.getElementById("login-email").value.trim();
   const password = document.getElementById("login-password").value.trim();
-  if (!email || !password) {
-    document.getElementById("login-response").value = "Completar email y password";
-    setResponseStyle('login-response', 400);
-    return;
-  }
+
   try {
     const res = await fetch(`${BASE_URL}/auth/login`, {
       method: "POST",
@@ -394,39 +395,51 @@ async function login() {
     document.getElementById("login-response").value = JSON.stringify(data, null, 2);
     setResponseStyle('login-response', res.status);
   } catch (error) {
-    document.getElementById("login-response").value = `Error: ${error.message}`;
+    document.getElementById("login-response").value = error.message;
     setResponseStyle('login-response', 500);
   }
 }
 
 function authHeader() {
-  return { Authorization: `Bearer ${token}` };
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 async function getAll() {
   try {
     const res = await fetch(`${BASE_URL}/products`, { headers: authHeader() });
     const data = await res.json();
+
     document.getElementById("getall-response").value = JSON.stringify(data, null, 2);
     setResponseStyle('getall-response', res.status);
+
   } catch (error) {
-    document.getElementById("getall-response").value = `Error de red: ${error.message}`;
+    document.getElementById("getall-response").value = error.message;
     setResponseStyle('getall-response', 500);
   }
 }
 
 async function getOne() {
   const id = document.getElementById("get-id").value.trim();
+
+  if (!id) { // validar que no esté vacío
+    document.getElementById("getone-response").value = "Error: Debe ingresar un ID";
+    setResponseStyle('getone-response', 400);
+    return;
+  }
+
   try {
     const res = await fetch(`${BASE_URL}/products/${id}`, { headers: authHeader() });
     const data = await res.json();
+
     document.getElementById("getone-response").value = JSON.stringify(data, null, 2);
     setResponseStyle('getone-response', res.status);
+
   } catch (error) {
-    document.getElementById("getone-response").value = `Error de red: ${error.message}`;
+    document.getElementById("getone-response").value = error.message;
     setResponseStyle('getone-response', 500);
   }
 }
+
 
 async function createProduct() {
   const name = document.getElementById("create-name").value.trim();
@@ -438,34 +451,46 @@ async function createProduct() {
     const res = await fetch(`${BASE_URL}/products/create`, {
       method: "POST",
       headers: Object.assign({ "Content-Type": "application/json" }, authHeader()),
-      body: JSON.stringify({ nombre: name, descripcion: description, precio: parseFloat(price), stock: parseInt(stock) })
+      body: JSON.stringify({
+        nombre: name,
+        descripcion: description,
+        precio: parseFloat(price),
+        stock: parseInt(stock)
+      })
     });
+
     const data = await res.json();
     document.getElementById("create-response").value = JSON.stringify(data, null, 2);
     setResponseStyle('create-response', res.status);
+
   } catch (error) {
-    document.getElementById("create-response").value = `Error de red: ${error.message}`;
+    document.getElementById("create-response").value = error.message;
     setResponseStyle('create-response', 500);
   }
 }
 
+/* -------------------------
+   DELETE PRODUCT
+--------------------------*/
 async function deleteProduct() {
   const id = document.getElementById("delete-id").value.trim();
+
   try {
     const res = await fetch(`${BASE_URL}/products/${id}`, {
       method: "DELETE",
       headers: authHeader()
     });
+
     const data = await res.json();
     document.getElementById("delete-response").value = JSON.stringify(data, null, 2);
     setResponseStyle('delete-response', res.status);
+
   } catch (error) {
-    document.getElementById("delete-response").value = `Error de red: ${error.message}`;
+    document.getElementById("delete-response").value = error.message;
     setResponseStyle('delete-response', 500);
   }
 }
 
-// Inicializar estado de autenticación
 updateAuthStatus();
 </script>
 
